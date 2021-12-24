@@ -1,0 +1,21 @@
+params:
+  gen_savepath: /media/sarthak/Data/SER/save_ops/
+  ckpt: /media/sarthak/Data/SER/code/ckpt/
+  model: GAN_SE
+  seed: 42
+  batch_size: 400
+  num_workers: 8
+  epochs: 100
+  gen_lr: 2e-4
+  disc_lr: 2e-4
+  window: 1  # in sec
+  hop_per: 0.5  #from 0 to 1
+  lambda_reg: 100
+  z_dims: 100
+  pre_emph: 0.95
+  save_freq: 50
+  denoise_epoch: 5  #noise is to be removed from the discriminator at this epoch.
+  z_std: 1 # std dev of input noise to G
+  optim: RMSProp  # or Adam
+  beta: 0.5 # if Adam optim is used. 
+  
