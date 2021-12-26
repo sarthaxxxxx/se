@@ -40,11 +40,3 @@ def get_data_loader(cfg, clean_path, noisy_path):
                       drop_last = True, 
                       pin_memory = True)
 
-
-if  __name__ == '__main__':
-    config = '/media/sarthak/Data/SER/code/config.yaml'
-    clean = '/media/sarthak/Data/SER/data/clean_testset/'
-    noisy = '/media/sarthak/Data/SER/data/noisy_testset/'
-    cfg = Configuration(config)
-    data = DATA(cfg, clean, noisy)
-    data.__getitem__(110)
