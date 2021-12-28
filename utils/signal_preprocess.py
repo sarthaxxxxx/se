@@ -34,7 +34,7 @@ def _seg_signal_(signal, fs, window, hop_per, mode):
             segments.append(np.append(signal[beg_i : len(signal)], [0] * (end_i - len(signal))))
             break
         segments.append(signal[beg_i : end_i])
-    return np.array(segments, dtype = np.float64)
+    return np.array(segments).astype(np.float64)
 
 
 def _read_slice_(path, window, hop_per):
@@ -59,7 +59,7 @@ def _read_slice_(path, window, hop_per):
     C = 0.5 * np.sqrt(np.mean(np.square(signal), axis = 0))
     norm_signal = np.divide(signal, C)
     mode = path.split('/')[-2].split('_')[-1]
-    return _seg_signal_(_preemph_(norm_signal), fs, window, hop_per, mode).reshape(-1, 1)
+    return _seg_signal_(_preemph_(norm_signal), fs, window, hop_per, mode).reshape(1, -1)
 
 
 def _preemph_(signal, c = 0.95):
