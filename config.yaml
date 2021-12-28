@@ -2,9 +2,10 @@ params:
   gen_savepath: /media/sarthak/Data/SER/save_ops/
   ckpt: /media/sarthak/Data/SER/code/ckpt/
   model: GAN_SE
+  val: True # 70-30 split by default, if val = True
   seed: 42
-  batch_size: 400
-  num_workers: 8
+  batch_size: 100
+  num_workers: 4
   epochs: 100
   gen_lr: 2e-4
   disc_lr: 2e-4
