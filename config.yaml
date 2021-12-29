@@ -10,7 +10,7 @@ params:
   gen_lr: 2e-4
   disc_lr: 2e-4
   window: 1  # in sec
-  hop_per: 0.5  #from 0 to 1
+  tt_max: 0.125  #from 0 to 1
   lambda_reg: 100
   z_dims: 100
   z_depth: 100
