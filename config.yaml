@@ -4,8 +4,8 @@ params:
   model: GAN_SE
   val: True # 70-30 split by default, if val = True
   seed: 42
-  batch_size: 100
-  num_workers: 4
+  batch_size: 10
+  num_workers: 0
   epochs: 100
   gen_lr: 2e-4
   disc_lr: 2e-4
