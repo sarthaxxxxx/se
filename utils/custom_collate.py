@@ -1,38 +1,24 @@
 import torch 
-import numpy as np
-
-
-def custom_collate(data):
+import torch.nn.utils.rnn as rnn
+    
+def custom_collate(batch):
     """ Module to perform batching for variable-size inputs for PyTorch DataLoader.
 
     Parameters
     ----------
-    data : list
+    batch : list
         List of tuples containing clean and noisy speech chunks.
-    
+
     Returns
     -------
-    features_1 : torch.Tensor
+    pad_clean : torch.Tensor
         Tensor containing clean speech chunks (batch wise)
-    features_2 : torch.Tensor
+    pad_noise : torch.Tensor
         Tensor containing noisy speech chunks (batch wise)
     """
-    data_1, data_2 = zip(*data) # clean and noise batches respectively (unequal sizes)
 
-    if type(data_1[0]).__name__ == 'ndarray' and type(data_2[0]).__name__ == 'ndarray':
-        data_1 = torch.from_numpy(data_1)
-        data_2 = torch.from_numpy(data_2)
-
-    if isinstance(data_1[0], torch.Tensor) and isinstance(data_2[0], torch.Tensor):
-        max_len_data = max([x.shape[1] for x in data_1]) # same max value for both clean and noise
-        features_1 = torch.zeros((len(data_1), data_1[0].size(0), max_len_data))
-        features_2 = torch.zeros((len(data_2), data_2[0].size(0), max_len_data))
-        for idx in range(len(data_1)):
-            features_1[idx] = torch.cat([data_1[idx], torch.zeros((data_1[idx].size(0), max_len_data - data_1[idx].size(1)))], dim = 1)
-            features_2[idx] = torch.cat([data_2[idx], torch.zeros((data_2[idx].size(0), max_len_data - data_2[idx].size(1)))], dim = 1)
-        return features_1, features_2
-
-    else: 
-        return ValueError("INPUT DATA TYPE NOT UNDERSTOOD!")
-    
-    
+    data_1, data_2 = zip(*batch)
+    clean_batch, noisy_batch = [torch.tensor(x) for x in data_1], [torch.tensor(x) for x in data_2]
+    pad_clean, pad_noisy = rnn.pad_sequence(clean_batch, batch_first = True, padding_value = 0.), \
+                           rnn.pad_sequence(noisy_batch, batch_first = True, padding_value = 0.)
+    return pad_clean.permute(0, 2, 1, 3), pad_noisy.permute(0, 2, 1, 3)
