@@ -2,9 +2,9 @@ import numpy as np
 import scipy.io.wavfile as wav
 
 
-def _seg_signal_(signal, fs, window, hop_per, mode):
+def _seg_signal_(signal, fs, window, tt_max):
     """
-    Segment signal with window size (in ms) and hop_size = window_length * hop_per.
+    Segment signal into chunks of length tt_max, w/ window_length = (window * fs).
 
     Parameters 
     ----------
@@ -14,30 +14,34 @@ def _seg_signal_(signal, fs, window, hop_per, mode):
         Sampling frequency
     window: float
         window length in seconds
-    hop_per: float
-        overlap percentage (0 to 1)
-    mode: str
-        Mode of data (train/test)
-        If test, no overlap. 
-
+    tt_max: float
+        chunk size (0 to 1)
+    
     Returns
     -------
-    segments: list
+    segments: ndarray
         List of speech segments (includes silence)
     """
-    assert signal.ndim == 1, "Invalid signal dimension."
-    window_length, segments = int(window * fs), []
-    hop_length = int(hop_per * window_length) if mode == 'trainset' else window_length
-    for idx in range(0, len(signal), hop_length):
+    assert signal.ndim == 2, "INVALID SIGNAL DIMENSIONS!!!"
+    window_length, tt_max, segments = int(window * fs), int(tt_max * fs), []
+    for idx in range(0, len(signal), window_length):
         beg_i, end_i = idx, idx + window_length
-        if end_i >= len(signal): 
-            segments.append(np.append(signal[beg_i : len(signal)], [0] * (end_i - len(signal))))
-            break
-        segments.append(signal[beg_i : end_i])
-    return np.array(segments).astype(np.float64)
+        chunk = signal[beg_i : end_i] if end_i < len(signal) else np.vstack([signal[beg_i : len(signal)] , np.zeros((end_i - len(signal), 1))])
+        if end_i - beg_i > tt_max:
+            s = 0; en = tt_max
+            while en < len(chunk):
+                segments.append(chunk[s : en])   
+                if len(chunk) - en < tt_max:
+                    pad_zeros = np.zeros(tt_max - (len(chunk) - en))
+                    segments.append(np.vstack((chunk[en : ], np.zeros((pad_zeros.shape[0], 1)))))
+                s += tt_max
+                en += tt_max
+        else:
+            segments.append(np.vstack((chunk, np.zeros((tt_max - len(chunk), 1)))))
+    return segments
 
 
-def _read_slice_(path, window, hop_per):
+def _read_slice_(path, window, tt_max):
     """ Read input path to audio file and return normalised speech chunks.
 
     Parameters
@@ -58,8 +62,7 @@ def _read_slice_(path, window, hop_per):
     signal -= np.mean(signal, axis = 0, dtype = np.int16)
     C = 0.5 * np.sqrt(np.mean(np.square(signal), axis = 0))
     norm_signal = np.divide(signal, C)
-    mode = path.split('/')[-2].split('_')[-1]
-    return _seg_signal_(_preemph_(norm_signal), fs, window, hop_per, mode).reshape(1, -1)
+    return _seg_signal_(_preemph_(norm_signal).reshape(-1, 1), fs, window, tt_max)
 
 
 def _preemph_(signal, c = 0.95):
@@ -102,3 +105,9 @@ def _deemph_(signal_test, c = 0.95):
     for idx in range(1, y.shape[0]):
         y[idx] = signal_test[idx] + c * (y[idx - 1])
     return y
+
+
+
+if __name__ == '__main__':
+    sig = '/media/sarthak/Data/SER/data/clean_trainset/p226_002.wav'
+    _read_slice_(sig, 1, 0.14)
