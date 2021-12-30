@@ -1,5 +1,6 @@
 import os
 import sys
+import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader, Subset
 from sklearn.model_selection import train_test_split
@@ -7,7 +8,6 @@ from sklearn.model_selection import train_test_split
 sys.path.append('/media/sarthak/Data/SER/code/')
 
 from utils.signal_preprocess import _read_slice_
-from utils.cfg_loader import Configuration
 from utils.custom_collate import custom_collate
 
 
@@ -72,7 +72,7 @@ def get_data_loader(cfg, clean_path, noisy_path):
     val_dl : torch.utils.data.DataLoader
         Data loader for validation data.
     """
-    dataset = DATA(cfg, clean_path, noisy_path)
+    dataset = DATA(cfg, clean_path, noisy_path)    
     if cfg.val:
         train_idx, val_idx = train_test_split(list(range(len(dataset))), 
                                               test_size = 0.3, 
@@ -89,6 +89,7 @@ def get_data_loader(cfg, clean_path, noisy_path):
                                       pin_memory = True,
                                       collate_fn = custom_collate) 
                                       for x in ['train', 'val']}
+        
         return dataloaders['train'], dataloaders['val']
     else: return DataLoader(dataset,
                             batch_size = cfg.batch_size,
@@ -97,4 +98,5 @@ def get_data_loader(cfg, clean_path, noisy_path):
                             drop_last = True,
                             pin_memory = True,
                             collate_fn = custom_collate)
+
 
