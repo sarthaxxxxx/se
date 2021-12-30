@@ -18,7 +18,8 @@ def custom_collate(batch):
     """
 
     data_1, data_2 = zip(*batch)
-    clean_batch, noisy_batch = [torch.tensor(x) for x in data_1], [torch.tensor(x) for x in data_2]
+    clean_batch, noisy_batch = [torch.tensor(x) for x in data_1], \
+                               [torch.tensor(x) for x in data_2]
     pad_clean, pad_noisy = rnn.pad_sequence(clean_batch, batch_first = True, padding_value = 0.), \
                            rnn.pad_sequence(noisy_batch, batch_first = True, padding_value = 0.)
     return pad_clean.permute(0, 2, 1, 3), pad_noisy.permute(0, 2, 1, 3)
