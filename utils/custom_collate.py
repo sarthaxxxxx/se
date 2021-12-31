@@ -1,5 +1,7 @@
+from numpy.core.numeric import zeros_like
 import torch 
 import torch.nn.utils.rnn as rnn
+import numpy as np
     
 def train_collate_fn(batch):
     """ Module to perform batching for variable-size inputs for PyTorch DataLoader.
@@ -7,22 +9,21 @@ def train_collate_fn(batch):
     Parameters
     ----------
     batch : list
-        List of tuples containing clean and noisy speech chunks.
+        List of tuples containing clean and noisy speech chunks (torch.tensor)  .
 
     Returns
     -------
-    pad_clean : torch.Tensor
-        Tensor containing clean speech chunks (batch wise)
-    pad_noise : torch.Tensor
-        Tensor containing noisy speech chunks (batch wise)
+    clean_final: torch.Tensor
+        Tensor containing clean speech chunks (batches, channels, frames, time_steps)
+    noisy_final : torch.Tensor
+        Tensor containing noisy speech chunks (batches, channels, frames, time_steps)
     """
-
     data_1, data_2 = zip(*batch)
-    clean_batch, noisy_batch = [torch.tensor(x) for x in data_1], \
-                               [torch.tensor(x) for x in data_2]
-    pad_clean, pad_noisy = rnn.pad_sequence(clean_batch, batch_first = True, padding_value = 0.), \
-                           rnn.pad_sequence(noisy_batch, batch_first = True, padding_value = 0.)
-    return pad_clean.permute(0, 2, 1, 3), pad_noisy.permute(0, 2, 1, 3)
+    maxlen = max([x.size(0) for x in data_1])
+    clean_batch, noisy_batch = [torch.cat((x, torch.zeros(maxlen - x.size(0), x.size(1), x.size(2)))) for x in data_1], \
+                               [torch.cat((x, torch.zeros(maxlen - x.size(0), x.size(1), x.size(2)))) for x in data_2]
+    clean_final, noisy_final = torch.stack(clean_batch, dim=0).permute(0, 3, 1, 2), torch.stack(noisy_batch, dim=0).permute(0, 3, 1, 2)
+    return clean_final, noisy_final
 
 
 def test_collate_fn(batch):
