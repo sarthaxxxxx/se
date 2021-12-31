@@ -53,7 +53,7 @@ class VALENTINIDataset(Dataset):
 
 
 def get_data_loader(cfg, clean_path, noisy_path):
-    """ Module to create data loader using a custom collate function. Train and validation data is created based on user config w/ a 70-30 split.
+    """ Module to create data loader using a custom collate function.
 
     Parameters
     ----------
@@ -68,8 +68,6 @@ def get_data_loader(cfg, clean_path, noisy_path):
     -------
     train_dl : torch.utils.data.DataLoader
         Data loader for training data.
-    val_dl : torch.utils.data.DataLoader
-        Data loader for validation data.
     """
     dataset = VALENTINIDataset(cfg, clean_path, noisy_path)  
     dataset.__getitem__(0)  
