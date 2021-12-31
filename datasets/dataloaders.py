@@ -3,7 +3,7 @@ import sys
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-sys.path.append('/media/sarthak/Data/SER/code/')
+sys.path.append('/media/sarthak/Data/SE/code/')
 
 from utils.signal_preprocess import read_slice
 from utils.custom_collate import train_collate_fn, test_collate_fn
