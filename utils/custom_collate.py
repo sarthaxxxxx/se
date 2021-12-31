@@ -1,7 +1,6 @@
 from numpy.core.numeric import zeros_like
 import torch 
 import torch.nn.utils.rnn as rnn
-import numpy as np
     
 def train_collate_fn(batch):
     """ Module to perform batching for variable-size inputs for PyTorch DataLoader.
@@ -22,7 +21,7 @@ def train_collate_fn(batch):
     maxlen = max([x.size(0) for x in data_1])
     clean_batch, noisy_batch = [torch.cat((x, torch.zeros(maxlen - x.size(0), x.size(1), x.size(2)))) for x in data_1], \
                                [torch.cat((x, torch.zeros(maxlen - x.size(0), x.size(1), x.size(2)))) for x in data_2]
-    clean_final, noisy_final = torch.stack(clean_batch, dim=0).permute(0, 3, 1, 2), torch.stack(noisy_batch, dim=0).permute(0, 3, 1, 2)
+    clean_final, noisy_final = torch.stack(clean_batch, dim = 0), torch.stack(noisy_batch, dim = 0)
     return clean_final, noisy_final
 
 
