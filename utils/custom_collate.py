@@ -13,9 +13,9 @@ def train_collate_fn(batch):
     Returns
     -------
     clean_final: torch.Tensor
-        Tensor containing clean speech chunks (batches, channels, frames, time_steps)
+        Tensor containing clean speech chunks (batches, frames, time_steps, channels)
     noisy_final : torch.Tensor
-        Tensor containing noisy speech chunks (batches, channels, frames, time_steps)
+        Tensor containing noisy speech chunks (batches, frames, time_steps, channels)
     """
     data_1, data_2 = zip(*batch)
     maxlen = max([x.size(0) for x in data_1])
