@@ -1,11 +1,13 @@
 import os
 import sys
+import torch
 from torch.utils.data import Dataset, DataLoader
 
 sys.path.append('/media/sarthak/Data/SER/code/')
 
-from utils.signal_preprocess import _read_slice_
+from utils.signal_preprocess import read_slice
 from utils.custom_collate import train_collate_fn, test_collate_fn
+from utils.cfg_loader import Configuration
 
 
 class VALENTINIDataset(Dataset):
@@ -39,14 +41,14 @@ class VALENTINIDataset(Dataset):
     def __getitem__(self, index):
         print("PROCESSING WAV FILE {}/{} : {}".format(index, len(self.clean_files), self.clean_files[index]))
         clean_data, noisy_data = [], []
-        clean_data += _read_slice_(self.clean_files[index], 
-                                   self.cfg.window, 
-                                   self.cfg.tt_max)
-        noisy_data += _read_slice_(self.noisy_files[index], 
-                                   self.cfg.window, 
-                                   self.cfg.tt_max)
+        clean_data += read_slice(self.clean_files[index], 
+                                 self.cfg.window, 
+                                 self.cfg.tt_max)
+        noisy_data += read_slice(self.noisy_files[index], 
+                                 self.cfg.window, 
+                                 self.cfg.tt_max)
         assert len(clean_data) == len(noisy_data), "UNEQUAL LENGTHS OF CLEAN AND NOISY SPEECH CHUNKS!!!"
-        return clean_data, noisy_data
+        return torch.tensor(clean_data), torch.tensor(noisy_data)
 
 
 
@@ -69,7 +71,8 @@ def get_data_loader(cfg, clean_path, noisy_path):
     val_dl : torch.utils.data.DataLoader
         Data loader for validation data.
     """
-    dataset = VALENTINIDataset(cfg, clean_path, noisy_path)    
+    dataset = VALENTINIDataset(cfg, clean_path, noisy_path)  
+    dataset.__getitem__(0)  
     if cfg.train:  return DataLoader(dataset, 
                                      batch_size = cfg.batch_size, 
                                      shuffle = True, 
@@ -86,3 +89,9 @@ def get_data_loader(cfg, clean_path, noisy_path):
                       collate_fn = test_collate_fn)
 
 
+if __name__ == '__main__':
+    config = '/media/sarthak/Data/SER/code/config.yaml'
+    clean_path = '/media/sarthak/Data/SER/data/clean_trainset/'
+    noisy_path = '/media/sarthak/Data/SER/data/noisy_trainset/'
+    cfg = Configuration(config)
+    train_dl = get_data_loader(cfg, clean_path, noisy_path)
