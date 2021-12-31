@@ -1,2 +1,2 @@
-# ser
-Speech Emotion Recognition using GANs
+# se
+GAN based Speech Enhancement
