@@ -1,7 +1,7 @@
 import torch 
 import torch.nn.utils.rnn as rnn
     
-def custom_collate(batch):
+def train_collate_fn(batch):
     """ Module to perform batching for variable-size inputs for PyTorch DataLoader.
 
     Parameters
@@ -23,3 +23,19 @@ def custom_collate(batch):
     pad_clean, pad_noisy = rnn.pad_sequence(clean_batch, batch_first = True, padding_value = 0.), \
                            rnn.pad_sequence(noisy_batch, batch_first = True, padding_value = 0.)
     return pad_clean.permute(0, 2, 1, 3), pad_noisy.permute(0, 2, 1, 3)
+
+
+def test_collate_fn(batch):
+    """ Module to perform batching for test data.
+
+    Parameters
+    ----------
+    batch : list
+        List of tuples containing clean and noisy speech chunks.
+    
+    Returns
+    -------
+    batch : torch.Tensor
+        Tensor containing clean and noisy speech chunks
+    """
+    return torch.tensor(batch)
